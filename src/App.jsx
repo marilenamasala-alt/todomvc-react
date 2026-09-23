@@ -1,21 +1,26 @@
-import { useState, useEffect, useRef } from 'react'
-import './App.css'
+import { useEffect, useRef, useState } from "react"
+import "./App.css"
 
 const newId = () =>
-  crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random())
+  crypto.randomUUID
+    ? crypto.randomUUID()
+    : String(Date.now() + Math.random())
 
 function loadTodos() {
   try {
     const saved = JSON.parse(localStorage.getItem("todos")) || []
-    return saved.map((t) => ({ ...t, id: t.id ?? newId() }))
+    return saved.map((todo) => ({
+      ...todo,
+      id: todo.id ?? newId(),
+    }))
   } catch {
     return []
   }
 }
 
 function filterFromHash() {
-  const h = window.location.hash.replace("#/", "")
-  return h === "active" || h === "completed" ? h : "all"
+  const hash = window.location.hash.replace("#/", "")
+  return hash === "active" || hash === "completed" ? hash : "all"
 }
 
 function App() {
@@ -27,16 +32,15 @@ function App() {
   const cancelled = useRef(false)
 
   useEffect(() => {
-    try {
-      localStorage.setItem("todos", JSON.stringify(todos))
-    } catch {}
+    localStorage.setItem("todos", JSON.stringify(todos))
   }, [todos])
 
   useEffect(() => {
     const onHashChange = () => setFilter(filterFromHash())
     window.addEventListener("hashchange", onHashChange)
 
-    return () => window.removeEventListener("hashchange", onHashChange)
+    return () =>
+      window.removeEventListener("hashchange", onHashChange)
   }, [])
 
   function changeFilter(next) {
@@ -45,7 +49,6 @@ function App() {
 
   function addTodo() {
     const text = input.trim()
-
     if (!text) return
 
     setTodos([
@@ -77,11 +80,18 @@ function App() {
   function clearCompleted() {
     setTodos(todos.filter((todo) => !todo.completed))
   }
-  
+
   function toggleAll() {
-  const allCompleted = todos.every((todo) => todo.completed)
-  setTodos(todos.map((todo) => ({ ...todo, completed: !allCompleted })))
-}
+    const allCompleted = todos.every((todo) => todo.completed)
+
+    setTodos(
+      todos.map((todo) => ({
+        ...todo,
+        completed: !allCompleted,
+      }))
+    )
+  }
+
   function startEdit(todo) {
     cancelled.current = false
     setEditingId(todo.id)
@@ -119,81 +129,123 @@ function App() {
   )
 
   return (
-    <div>
+    <div className="todo-app">
       <h1>todos</h1>
-      <button onClick={toggleAll}>Toggle all</button>
 
-      <input
-        type="text"
-        placeholder="What needs to be done?"
-        value={input}
-        onChange={(e) => setInput(e.target.value)}
-        onKeyDown={(e) => e.key === "Enter" && addTodo()}
-      />
+      <section className="todo-card">
+        <div className="input-row">
+          <button
+            className="toggle-all"
+            onClick={toggleAll}
+            aria-label="Toggle all"
+          >
+            ❯
+          </button>
 
-      <button onClick={() => changeFilter("all")}>
-        All
-      </button>
+          <input
+            className="new-todo"
+            type="text"
+            placeholder="What needs to be done?"
+            value={input}
+            onChange={(event) => setInput(event.target.value)}
+            onKeyDown={(event) =>
+              event.key === "Enter" && addTodo()
+            }
+          />
+        </div>
 
-      <button onClick={() => changeFilter("active")}>
-        Active
-      </button>
-
-      <button onClick={() => changeFilter("completed")}>
-        Completed
-      </button>
-
-      <ul>
-        {visibleTodos.map((todo) => (
-          <li key={todo.id}>
-            <input
-              type="checkbox"
-              checked={todo.completed}
-              onChange={() => toggleTodo(todo.id)}
-            />
-
-            {editingId === todo.id ? (
+        <ul className="todo-list">
+          {visibleTodos.map((todo) => (
+            <li
+              className={todo.completed ? "completed" : ""}
+              key={todo.id}
+            >
               <input
-                value={editText}
-                onChange={(e) => setEditText(e.target.value)}
-                onBlur={() => saveEdit(todo.id)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.currentTarget.blur()
-                  } else if (e.key === "Escape") {
-                    cancelEdit()
-                  }
-                }}
-                autoFocus
+                className="toggle"
+                type="checkbox"
+                checked={todo.completed}
+                onChange={() => toggleTodo(todo.id)}
               />
-            ) : (
-              <span
-                style={{
-                  textDecoration: todo.completed
-                    ? "line-through"
-                    : "none",
-                }}
+
+              {editingId === todo.id ? (
+                <input
+                  className="edit"
+                  value={editText}
+                  onChange={(event) =>
+                    setEditText(event.target.value)
+                  }
+                  onBlur={() => saveEdit(todo.id)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") {
+                      event.currentTarget.blur()
+                    } else if (event.key === "Escape") {
+                      cancelEdit()
+                    }
+                  }}
+                  autoFocus
+                />
+              ) : (
+                <span
+                  onDoubleClick={() => startEdit(todo)}
+                  title="Double-click to edit"
+                >
+                  {todo.text}
+                </span>
+              )}
+
+              <button
+                className="destroy"
+                onClick={() => deleteTodo(todo.id)}
+                aria-label="Delete"
               >
-                {todo.text}
-              </span>
-            )}
+                ×
+              </button>
+            </li>
+          ))}
+        </ul>
 
-            <button onClick={() => deleteTodo(todo.id)}>
-              Delete
+        <footer className="todo-footer">
+          <span className="todo-count">
+            {itemsLeft} {itemsLeft === 1 ? "item" : "items"} left!
+          </span>
+
+          <div className="filters">
+            <button
+              className={filter === "all" ? "selected" : ""}
+              onClick={() => changeFilter("all")}
+            >
+              All
             </button>
 
-            <button onClick={() => startEdit(todo)}>
-              Edit
+            <button
+              className={filter === "active" ? "selected" : ""}
+              onClick={() => changeFilter("active")}
+            >
+              Active
             </button>
-          </li>
-        ))}
-      </ul>
 
-      <p>{itemsLeft} items left</p>
+            <button
+              className={filter === "completed" ? "selected" : ""}
+              onClick={() => changeFilter("completed")}
+            >
+              Completed
+            </button>
+          </div>
 
-      <button onClick={clearCompleted}>
-        Clear completed
-      </button>
+          <button
+            className="clear-completed"
+            onClick={clearCompleted}
+          >
+            Clear completed
+          </button>
+        </footer>
+      </section>
+
+      <div className="info">
+        <p>Double-click to edit a todo</p>
+        <p>Created by the TodoMVC Team</p>
+        <p>Part of TodoMVC</p>
+      </div>
     </div>
   )
 }
