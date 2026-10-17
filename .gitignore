@@ -1,24 +1,39 @@
-# Logs
+# Log folders and files
 logs
 *.log
+
+# Package manager and Lerna debug logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Installed dependencies
 node_modules
+
+# Vite build output (client and SSR)
 dist
 dist-ssr
+
+# Local-only files, e.g. .env.local
 *.local
 
-# Editor directories and files
+# VS Code settings, except shared extension recommendations
 .vscode/*
 !.vscode/extensions.json
+
+# JetBrains IDE settings
 .idea
+
+# macOS Finder metadata
 .DS_Store
+
+# Visual Studio solution and project files
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
+
+# Vim swap files
 *.sw?
