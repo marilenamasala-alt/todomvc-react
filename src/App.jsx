@@ -78,10 +78,12 @@ export default function App() {
   };
 
   return (
-    <div className="todo-app">
-      <h1>todos</h1>
+    <div className="page-layout">
+      <main className="main-content">
+        <div className="todo-app">
+          <h1>todos</h1>
 
-      <div className="todo-panel">
+          <div className="todo-panel">
         <form
           className={todos.length > 0 ? 'has-todos' : ''}
           onSubmit={handleSubmit}
@@ -178,37 +180,28 @@ export default function App() {
           </ul>
         )}
 
-        <div className="todo-controls">
-          <span>
-            {activeCount} item{activeCount === 1 ? '' : 's'} left
-          </span>
+        {todos.length > 0 && (
+          <div className="todo-controls">
+            <span>
+              {activeCount} item{activeCount === 1 ? '' : 's'} left
+            </span>
 
-          <div className="filters" aria-label="Filter todos">
-            {['all', 'active', 'completed'].map((filterName) => (
-              <button
-                key={filterName}
-                type="button"
-                className={filter === filterName ? 'active' : ''}
-                aria-pressed={filter === filterName}
-                onClick={() => setFilter(filterName)}
-              >
-                {filterName[0].toUpperCase() + filterName.slice(1)}
-              </button>
-            ))}
+            <div className="filters" aria-label="Filter todos">
+              {['all', 'active', 'completed'].map((filterName) => (
+                <button
+                  key={filterName}
+                  type="button"
+                  className={filter === filterName ? 'active' : ''}
+                  aria-pressed={filter === filterName}
+                  onClick={() => setFilter(filterName)}
+                >
+                  {filterName[0].toUpperCase() + filterName.slice(1)}
+                </button>
+              ))}
+            </div>
+
           </div>
-
-          <button
-            type="button"
-            className="clear-completed"
-            onClick={() =>
-              setTodos((currentTodos) =>
-                currentTodos.filter((todo) => !todo.completed)
-              )
-            }
-          >
-            Clear completed
-          </button>
-        </div>
+        )}
       </div>
 
       <footer className="todo-footer">
@@ -224,6 +217,8 @@ export default function App() {
         <p>Created by the TodoMVC Team</p>
         <p>Part of TodoMVC</p>
       </footer>
+        </div>
+      </main>
     </div>
   );
 }
