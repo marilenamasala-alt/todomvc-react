@@ -22,7 +22,7 @@ body {
 }
 
 .react-sidebar {
-  flex: 0 0 286px;
+  flex: 0 0 300px;
   padding: 16px;
   border-right: 1px solid #e5e5e5;
   background: #fff;
@@ -39,7 +39,7 @@ body {
 }
 
 .sidebar-projects {
-  padding-bottom: 18px;
+  padding-bottom: 20px;
   border-bottom: 1px dashed #ddd;
 }
 
@@ -58,18 +58,35 @@ body {
   color: #222;
 }
 
-.sidebar-projects div {
-  display: flex;
-  gap: 8px;
-}
-
 .react-sidebar blockquote {
+  position: relative;
   margin: 18px 0 8px;
   padding: 12px 10px;
   border-radius: 5px;
   background: #f2f2f2;
   font-style: italic;
   line-height: 1.35;
+}
+
+.react-sidebar blockquote::before,
+.react-sidebar blockquote::after {
+  position: absolute;
+  color: #d9d9d9;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.react-sidebar blockquote::before {
+  top: -12px;
+  left: 8px;
+  content: '\201C';
+}
+
+.react-sidebar blockquote::after {
+  right: 8px;
+  bottom: -12px;
+  content: '\201D';
 }
 
 .sidebar-credit {
@@ -102,6 +119,11 @@ body {
   font-style: italic;
 }
 
+.sidebar-note a {
+  color: #b83f45;
+  text-decoration: none;
+}
+
 .main-content {
   display: flex;
   flex: 1;
@@ -112,6 +134,7 @@ body {
 .todo-app {
   width: min(550px, calc(100% - 32px));
   max-width: 550px;
+  flex-shrink: 0;
   margin: 0 auto;
   padding-top: 12px;
 }
@@ -227,12 +250,15 @@ body {
   min-width: 0;
 }
 
+.todo-list li.editing {
+  padding: 0;
+}
+
 .todo-edit {
   flex: 1;
-  width: auto;
+  width: 100%;
   min-width: 0;
-  height: 32px;
-  padding: 0 8px;
+  padding: 16px 20px 16px 58px;
   border: 0;
   background: #fff;
   color: #4d4d4d;

@@ -1,8 +1,6 @@
 import { useRef, useState } from 'react';
 
-const initialTodos = [
-  { id: 'sample-milk', text: 'milk', completed: true },
-];
+const initialTodos = [];
 
 export default function App() {
   const [todos, setTodos] = useState(initialTodos);
@@ -86,15 +84,18 @@ export default function App() {
           <a className="sidebar-project-title" href="https://react.dev/">
             TypeScript + React
           </a>
-          <div>
-            <a href="https://react.dev/learn">Demo</a>
+          <div className="sidebar-project-links">
+            <a href="https://react.dev/learn">Demo</a>,{' '}
             <a href="https://github.com/facebook/react">Source</a>
           </div>
         </nav>
 
         <blockquote>
-          React helps you build interfaces from reusable components and keeps
-          them in sync as your data changes.
+          React is a JavaScript library for building user interfaces. You
+          compose UI from function components and describe the state with hooks;
+          React handles the rendering and keeps the UI in sync as changes. The
+          modern ecosystem (createRoot, Suspense, Server Components) builds on
+          the same component model.
         </blockquote>
         <p className="sidebar-credit">React</p>
 
@@ -116,7 +117,9 @@ export default function App() {
         </section>
 
         <p className="sidebar-note">
-          Have a useful React resource to share? Let us know.
+          If you have other helpful links to share, or find any of the links
+          above no longer work, please{' '}
+          <a href="https://react.dev/community">let us know.</a>
         </p>
       </aside>
 
@@ -168,17 +171,18 @@ export default function App() {
                   }
                 >
                   <div className="todo-item">
-                    <input
-                      type="checkbox"
-                      id={`todo-${todo.id}`}
-                      checked={todo.completed}
-                      aria-label={
-                        todo.completed
-                          ? `Mark ${todo.text} active`
-                          : `Mark ${todo.text} complete`
-                      }
-                      onChange={() => toggleTodo(todo.id)}
-                    />
+                    {editingId !== todo.id && (
+                      <input
+                        type="checkbox"
+                        checked={todo.completed}
+                        aria-label={
+                          todo.completed
+                            ? `Mark ${todo.text} active`
+                            : `Mark ${todo.text} complete`
+                        }
+                        onChange={() => toggleTodo(todo.id)}
+                      />
+                    )}
                     {editingId === todo.id ? (
                       <input
                         className="todo-edit"
@@ -207,13 +211,12 @@ export default function App() {
                         }}
                       />
                     ) : (
-                      <label
+                      <span
                         className="todo-text"
-                        htmlFor={`todo-${todo.id}`}
                         onDoubleClick={() => startEditing(todo)}
                       >
                         {todo.text}
-                      </label>
+                      </span>
                     )}
                   </div>
                 </li>
