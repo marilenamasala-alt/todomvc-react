@@ -248,10 +248,6 @@ input:focus-visible {
   border-radius: 3px;
 }
 
-.filters button:hover {
-  border-color: rgba(183, 28, 28, 0.5);
-}
-
 .filters button:focus-visible {
   outline: none;
 }
@@ -351,5 +347,5 @@ input:focus-visible {
 .todo-footer .edit-hint:hover,
 .todo-footer .edit-hint:focus-visible {
   color: #b83f45;
-  text-decoration: underline;
+  text-decoration: none;
 }
