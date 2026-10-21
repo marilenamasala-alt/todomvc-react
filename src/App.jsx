@@ -1,59 +1,36 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import TodoControls from './components/TodoControls.jsx';
 import TodoFooter from './components/TodoFooter.jsx';
+import TodoHeader from './components/TodoHeader.jsx';
 import TodoInput from './components/TodoInput.jsx';
 import TodoList from './components/TodoList.jsx';
-import { getFilterFromHash } from './todoUtils.js';
-
-const STORAGE_KEY = 'todomvc-react.todos';
-
-const getStoredTodos = () => {
-  try {
-    const rawTodos = window.localStorage.getItem(STORAGE_KEY);
-    return rawTodos ? JSON.parse(rawTodos) : [];
-  } catch {
-    return [];
-  }
-};
+import useFilter from './hooks/useFilter.js';
+import useTodoEditing from './hooks/useTodoEditing.js';
+import useTodos from './hooks/useTodos.js';
 
 export default function App() {
-  const [todos, setTodos] = useState(getStoredTodos);
+  // Step 1: the list of todos and the things we can do with it.
+  const {
+    todos,
+    addTodo,
+    toggleTodo,
+    toggleAllTodos,
+    deleteTodo,
+    updateTodoText,
+    clearCompleted,
+  } = useTodos();
+
+  // Step 2: the chosen filter (all, active or completed).
+  const [filter, setFilter] = useFilter();
+
+  // Step 3: which todo is being edited.
+  const editing = useTodoEditing(updateTodoText);
+
+  // Step 4: the text in the "new todo" box.
   const [newTodo, setNewTodo] = useState('');
-  const [filter, setFilter] = useState(() => getFilterFromHash(window.location.hash));
-  const [editingId, setEditingId] = useState(null);
-  const [editingText, setEditingText] = useState('');
-  const cancelEditRef = useRef(false);
   const newTodoInputRef = useRef(null);
 
-  useEffect(() => {
-    try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(todos));
-    } catch {
-      // Ignore localStorage write failures.
-    }
-  }, [todos]);
-
-  useEffect(() => {
-    const syncFilterFromHash = () => {
-      const nextFilter = getFilterFromHash(window.location.hash);
-      setFilter((currentFilter) =>
-        currentFilter === nextFilter ? currentFilter : nextFilter
-      );
-    };
-
-    syncFilterFromHash();
-    window.addEventListener('hashchange', syncFilterFromHash);
-
-    return () => window.removeEventListener('hashchange', syncFilterFromHash);
-  }, []);
-
-  useEffect(() => {
-    const nextHash = filter === 'all' ? '#/' : `#/${filter}`;
-    if (window.location.hash !== nextHash) {
-      window.location.hash = nextHash;
-    }
-  }, [filter]);
-
+  // Step 5: work out what to show and the numbers.
   const filteredTodos = todos.filter((todo) => {
     if (filter === 'active') return !todo.completed;
     if (filter === 'completed') return todo.completed;
@@ -64,66 +41,29 @@ export default function App() {
   const completedCount = todos.length - activeCount;
   const allCompleted = todos.length > 0 && activeCount === 0;
 
+  // Step 6: what happens when you click or type.
   const handleSubmit = (event) => {
     event.preventDefault();
     const text = newTodo.trim();
     if (!text) return;
 
-    setTodos((currentTodos) => [
-      ...currentTodos,
-      { id: crypto.randomUUID(), text, completed: false },
-    ]);
+    addTodo(text);
     setNewTodo('');
     newTodoInputRef.current?.focus();
   };
 
-  const toggleTodo = (id) => {
-    setTodos((currentTodos) =>
-      currentTodos.map((todo) =>
-        todo.id === id ? { ...todo, completed: !todo.completed } : todo
-      )
-    );
-  };
-
-  const deleteTodo = (id) => {
-    setTodos((currentTodos) => currentTodos.filter((todo) => todo.id !== id));
-    if (editingId === id) {
-      setEditingId(null);
-      setEditingText('');
+  const handleDelete = (id) => {
+    deleteTodo(id);
+    if (editing.editingId === id) {
+      editing.stopEditing();
     }
   };
 
-  const clearCompleted = () => {
-    setTodos((currentTodos) => currentTodos.filter((todo) => !todo.completed));
+  const handleClearCompleted = () => {
+    clearCompleted();
     if (filter === 'completed') {
       setFilter('all');
     }
-  };
-
-  const startEditing = (todo) => {
-    cancelEditRef.current = false;
-    setEditingId(todo.id);
-    setEditingText(todo.text);
-  };
-
-  const saveTodoEdit = (id) => {
-    const text = editingText.trim();
-
-    setTodos((currentTodos) =>
-      text
-        ? currentTodos.map((todo) =>
-            todo.id === id ? { ...todo, text } : todo
-          )
-        : currentTodos.filter((todo) => todo.id !== id)
-    );
-    setEditingId(null);
-    setEditingText('');
-  };
-
-  const cancelTodoEdit = () => {
-    cancelEditRef.current = true;
-    setEditingId(null);
-    setEditingText('');
   };
 
   const activateEditHint = () => {
@@ -136,24 +76,15 @@ export default function App() {
     if (filteredTodos.length === 0) {
       setFilter('all');
     }
-    startEditing(todoToEdit);
+    editing.startEditing(todoToEdit);
   };
 
-  const toggleAllTodos = () => {
-    const shouldComplete = todos.some((todo) => !todo.completed);
-    setTodos((currentTodos) =>
-      currentTodos.map((todo) => ({
-        ...todo,
-        completed: shouldComplete,
-      }))
-    );
-  };
-
+  // Step 7: put the pieces on the screen.
   return (
     <div className="page-layout">
       <main className="main-content">
         <div className="todo-app">
-          <h1>todos</h1>
+          <TodoHeader />
 
           <div className="todo-panel">
             <TodoInput
@@ -170,22 +101,22 @@ export default function App() {
               <>
                 <TodoList
                   todos={filteredTodos}
-                  editingId={editingId}
-                  editingText={editingText}
-                  cancelEditRef={cancelEditRef}
+                  editingId={editing.editingId}
+                  editingText={editing.editingText}
+                  cancelEditRef={editing.cancelEditRef}
                   onToggle={toggleTodo}
-                  onDelete={deleteTodo}
-                  onStartEditing={startEditing}
-                  onChangeEditingText={setEditingText}
-                  onSaveEdit={saveTodoEdit}
-                  onCancelEdit={cancelTodoEdit}
+                  onDelete={handleDelete}
+                  onStartEditing={editing.startEditing}
+                  onChangeEditingText={editing.setEditingText}
+                  onSaveEdit={editing.saveEdit}
+                  onCancelEdit={editing.cancelEdit}
                 />
                 <TodoControls
                   activeCount={activeCount}
                   completedCount={completedCount}
                   filter={filter}
                   onChangeFilter={setFilter}
-                  onClearCompleted={clearCompleted}
+                  onClearCompleted={handleClearCompleted}
                 />
               </>
             )}
