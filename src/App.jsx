@@ -17,6 +17,7 @@ const getStoredTodos = () => {
 };
 
 export default function App() {
+  // Step 1: things the app remembers (the list, the typed text, the filter, the todo being edited).
   const [todos, setTodos] = useState(getStoredTodos);
   const [newTodo, setNewTodo] = useState('');
   const [filter, setFilter] = useState(() => getFilterFromHash(window.location.hash));
@@ -25,6 +26,7 @@ export default function App() {
   const cancelEditRef = useRef(false);
   const newTodoInputRef = useRef(null);
 
+  // Step 2: save the list in the browser every time it changes.
   useEffect(() => {
     try {
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(todos));
@@ -33,6 +35,7 @@ export default function App() {
     }
   }, [todos]);
 
+  // Step 3: keep the filter and the web address the same.
   useEffect(() => {
     const syncFilterFromHash = () => {
       const nextFilter = getFilterFromHash(window.location.hash);
@@ -54,6 +57,7 @@ export default function App() {
     }
   }, [filter]);
 
+  // Step 4: work out which todos to show and how many are left.
   const filteredTodos = todos.filter((todo) => {
     if (filter === 'active') return !todo.completed;
     if (filter === 'completed') return todo.completed;
@@ -64,6 +68,7 @@ export default function App() {
   const completedCount = todos.length - activeCount;
   const allCompleted = todos.length > 0 && activeCount === 0;
 
+  // Step 5: what happens when you add, tick, delete or edit a todo.
   const handleSubmit = (event) => {
     event.preventDefault();
     const text = newTodo.trim();
@@ -149,6 +154,7 @@ export default function App() {
     );
   };
 
+  // Step 6: put the pieces on the screen. Each piece is its own file in the components folder.
   return (
     <div className="page-layout">
       <main className="main-content">
