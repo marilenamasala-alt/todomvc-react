@@ -4,6 +4,7 @@ import TodoFooter from './components/TodoFooter.jsx';
 import TodoInput from './components/TodoInput.jsx';
 import TodoList from './components/TodoList.jsx';
 import { getFilterFromHash } from './todoUtils.js';
+import './App.css';
 
 const STORAGE_KEY = 'todomvc-react.todos';
 

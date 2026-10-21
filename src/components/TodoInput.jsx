@@ -1,3 +1,5 @@
+import './TodoInput.css';
+
 export default function TodoInput({
   hasTodos,
   allCompleted,

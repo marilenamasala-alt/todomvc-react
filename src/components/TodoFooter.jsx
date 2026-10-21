@@ -1,3 +1,5 @@
+import './TodoFooter.css';
+
 export default function TodoFooter({ onActivateEditHint }) {
   return (
     <footer className="todo-footer">

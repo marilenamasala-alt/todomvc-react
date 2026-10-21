@@ -1,3 +1,5 @@
+import './TodoItem.css';
+
 export default function TodoItem({
   todo,
   isEditing,

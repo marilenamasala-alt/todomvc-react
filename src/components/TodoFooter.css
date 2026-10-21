@@ -1,0 +1,28 @@
+.todo-footer {
+  margin-top: 50px;
+  color: #777777;
+  text-align: center;
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.todo-footer a {
+  color: #777777;
+  text-decoration: none;
+}
+
+.todo-footer .edit-hint {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  line-height: inherit;
+  cursor: pointer;
+}
+
+.todo-footer .edit-hint:hover,
+.todo-footer .edit-hint:focus-visible {
+  color: #b83f45;
+  text-decoration: none;
+}

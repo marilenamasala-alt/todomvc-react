@@ -1,0 +1,42 @@
+.page-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.main-content {
+  display: flex;
+  flex: 1;
+  justify-content: center;
+  min-width: 0;
+}
+
+.todo-app {
+  width: min(550px, calc(100% - 32px));
+  max-width: 550px;
+  flex-shrink: 0;
+  margin: 0 auto;
+  padding-top: 12px;
+}
+
+.todo-app h1 {
+  margin: 0 0 40px;
+  font-size: 72px;
+  font-weight: 100;
+  line-height: 1;
+  letter-spacing: 1px;
+  text-align: center;
+  color: #b83f45;
+}
+
+.todo-panel {
+  background: #fff;
+  border: 1px solid #e6e6e6;
+  border-bottom: 1px solid #ededed;
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.04),
+    0 1px 1px rgba(0, 0, 0, 0.2),
+    0 8px 0 -3px #f5f5f5,
+    0 9px 1px -3px rgba(0, 0, 0, 0.2),
+    0 16px 0 -6px #f5f5f5,
+    0 17px 2px -6px rgba(0, 0, 0, 0.2);
+}

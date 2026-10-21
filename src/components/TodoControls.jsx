@@ -1,4 +1,5 @@
 import { FILTERS } from '../todoUtils.js';
+import './TodoControls.css';
 
 export default function TodoControls({
   activeCount,
