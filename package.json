@@ -7,7 +7,6 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "oxlint",
-    "appx": "powershell -ExecutionPolicy Bypass -File packaging/build-appx.ps1",
     "preview": "vite preview"
   },
   "dependencies": {
