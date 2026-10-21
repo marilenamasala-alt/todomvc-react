@@ -1,12 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
+import TodoControls from './components/TodoControls.jsx';
+import TodoFooter from './components/TodoFooter.jsx';
+import TodoInput from './components/TodoInput.jsx';
+import TodoList from './components/TodoList.jsx';
+import { getFilterFromHash } from './todoUtils.js';
 
 const STORAGE_KEY = 'todomvc-react.todos';
-const FILTERS = ['all', 'active', 'completed'];
-
-const getFilterFromHash = (hash) => {
-  const value = hash.replace(/^#\/?/, '').trim();
-  return FILTERS.includes(value) ? value : 'all';
-};
 
 const getStoredTodos = () => {
   try {
@@ -140,6 +139,16 @@ export default function App() {
     startEditing(todoToEdit);
   };
 
+  const toggleAllTodos = () => {
+    const shouldComplete = todos.some((todo) => !todo.completed);
+    setTodos((currentTodos) =>
+      currentTodos.map((todo) => ({
+        ...todo,
+        completed: shouldComplete,
+      }))
+    );
+  };
+
   return (
     <div className="page-layout">
       <main className="main-content">
@@ -147,161 +156,42 @@ export default function App() {
           <h1>todos</h1>
 
           <div className="todo-panel">
-            <form
-              className={todos.length > 0 ? 'has-todos' : ''}
+            <TodoInput
+              hasTodos={todos.length > 0}
+              allCompleted={allCompleted}
+              newTodo={newTodo}
+              inputRef={newTodoInputRef}
+              onChange={setNewTodo}
               onSubmit={handleSubmit}
-            >
-              {todos.length > 0 && (
-                <button
-                  type="button"
-                  className="toggle-all"
-                  aria-label={
-                    allCompleted ? 'Mark all todos active' : 'Mark all todos complete'
-                  }
-                  aria-pressed={allCompleted}
-                  onClick={() => {
-                    const shouldComplete = todos.some((todo) => !todo.completed);
-                    setTodos((currentTodos) =>
-                      currentTodos.map((todo) => ({
-                        ...todo,
-                        completed: shouldComplete,
-                      }))
-                    );
-                  }}
+              onToggleAll={toggleAllTodos}
+            />
+
+            {todos.length > 0 && (
+              <>
+                <TodoList
+                  todos={filteredTodos}
+                  editingId={editingId}
+                  editingText={editingText}
+                  cancelEditRef={cancelEditRef}
+                  onToggle={toggleTodo}
+                  onDelete={deleteTodo}
+                  onStartEditing={startEditing}
+                  onChangeEditingText={setEditingText}
+                  onSaveEdit={saveTodoEdit}
+                  onCancelEdit={cancelTodoEdit}
                 />
-              )}
-              <input
-                ref={newTodoInputRef}
-                type="text"
-                value={newTodo}
-                onChange={(event) => setNewTodo(event.target.value)}
-                placeholder="What needs to be done?"
-                aria-label="New todo"
-              />
-            </form>
-
-            {todos.length > 0 && (
-              <ul className="todo-list">
-                {filteredTodos.map((todo) => (
-                  <li
-                    key={todo.id}
-                    className={
-                      [
-                        todo.completed ? 'completed' : '',
-                        editingId === todo.id ? 'editing' : '',
-                      ]
-                        .filter(Boolean)
-                        .join(' ') || undefined
-                    }
-                  >
-                    <div className="todo-item">
-                      {editingId !== todo.id ? (
-                        <>
-                          <input
-                            type="checkbox"
-                            checked={todo.completed}
-                            aria-label={
-                              todo.completed
-                                ? `Mark ${todo.text} active`
-                                : `Mark ${todo.text} complete`
-                            }
-                            onChange={() => toggleTodo(todo.id)}
-                          />
-                          <span
-                            className="todo-text"
-                            onDoubleClick={() => startEditing(todo)}
-                          >
-                            {todo.text}
-                          </span>
-                          <button
-                            type="button"
-                            className="destroy"
-                            aria-label={`Delete ${todo.text}`}
-                            onClick={() => deleteTodo(todo.id)}
-                          >
-                            ×
-                          </button>
-                        </>
-                      ) : (
-                        <input
-                          className="todo-edit"
-                          type="text"
-                          value={editingText}
-                          autoFocus
-                          aria-label={`Edit ${todo.text}`}
-                          onChange={(event) => setEditingText(event.target.value)}
-                          onBlur={() => {
-                            if (cancelEditRef.current) {
-                              cancelEditRef.current = false;
-                              return;
-                            }
-                            saveTodoEdit(todo.id);
-                          }}
-                          onKeyDown={(event) => {
-                            if (event.key === 'Enter') {
-                              event.preventDefault();
-                              event.currentTarget.blur();
-                            }
-                            if (event.key === 'Escape') {
-                              event.preventDefault();
-                              cancelTodoEdit();
-                              event.currentTarget.blur();
-                            }
-                          }}
-                        />
-                      )}
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            )}
-
-            {todos.length > 0 && (
-              <div className="todo-controls">
-                <span>
-                  {activeCount} item{activeCount === 1 ? '' : 's'} left
-                </span>
-
-                <div className="filters" aria-label="Filter todos">
-                  {FILTERS.map((filterName) => (
-                    <button
-                      key={filterName}
-                      type="button"
-                      className={filter === filterName ? 'active' : ''}
-                      aria-pressed={filter === filterName}
-                      onClick={() => setFilter(filterName)}
-                    >
-                      {filterName[0].toUpperCase() + filterName.slice(1)}
-                    </button>
-                  ))}
-                </div>
-
-                {completedCount > 0 && (
-                  <button
-                    type="button"
-                    className="clear-completed"
-                    onClick={clearCompleted}
-                  >
-                    Clear completed
-                  </button>
-                )}
-              </div>
+                <TodoControls
+                  activeCount={activeCount}
+                  completedCount={completedCount}
+                  filter={filter}
+                  onChangeFilter={setFilter}
+                  onClearCompleted={clearCompleted}
+                />
+              </>
             )}
           </div>
 
-          <footer className="todo-footer">
-            <p>
-              <button
-                type="button"
-                className="edit-hint"
-                onClick={activateEditHint}
-              >
-                Double-click to edit a todo
-              </button>
-            </p>
-            <p>Created by the TodoMVC Team</p>
-            <p>Part of TodoMVC</p>
-          </footer>
+          <TodoFooter onActivateEditHint={activateEditHint} />
         </div>
       </main>
     </div>
